@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terraform Associate (003) Practice Exam</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .header .subtitle {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+
+  .timer-box {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 12px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 130px;
+  }
+
+  .timer-label { font-size: 0.72rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .timer-value { font-size: 1.8rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .timer-value.warning { color: #fbbf24; }
+  .timer-value.danger { color: #f87171; animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .progress-bar-wrap {
+    background: #1e2130;
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid #2d3148;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 8px;
+    background: #2d3148;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7c3aed, #06b6d4);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-text { font-size: 0.82rem; color: #94a3b8; white-space: nowrap; }
+
+  .score-summary {
+    background: #1e2130;
+    padding: 10px 32px;
+    display: flex;
+    gap: 24px;
+    font-size: 0.82rem;
+    border-bottom: 1px solid #2d3148;
+  }
+
+  .score-summary span { color: #94a3b8; }
+  .score-summary .correct { color: #34d399; font-weight: 600; }
+  .score-summary .incorrect { color: #f87171; font-weight: 600; }
+  .score-summary .skipped { color: #fbbf24; font-weight: 600; }
+
+  .container {
+    max-width: 860px;
+    margin: 32px auto;
+    padding: 0 20px 80px;
+  }
+
+  .question-card {
+    background: #1a1d2e;
+    border: 1px solid #2d3148;
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    transition: border-color 0.2s;
+  }
+
+  .question-card.answered { border-color: #4f46e5; }
+  .question-card.correct-card { border-color: #059669; background: #0d1f18; }
+  .question-card.wrong-card { border-color: #dc2626; background: #1f0d0d; }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .q-number {
+    background: #7c3aed;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .q-domain {
+    background: #1e3a5f;
+    color: #60a5fa;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+    margin-top: 3px;
+  }
+
+  .q-text {
+    font-size: 0.97rem;
+    line-height: 1.7;
+    color: #e2e8f0;
+    flex: 1;
+  }
+
+  .code-block {
+    background: #0d1117;
+    border: 1px solid #2d3148;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    color: #a5f3fc;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1.5px solid #2d3148;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: #1a1d2e;
+  }
+
+  .option:hover:not(.disabled) { border-color: #7c3aed; background: #221b3a; }
+  .option.selected { border-color: #7c3aed; background: #221b3a; }
+
+  .option.correct-ans {
+    border-color: #059669;
+    background: #0d2318;
+  }
+
+  .option.wrong-ans {
+    border-color: #dc2626;
+    background: #2a0f0f;
+  }
+
+  .option.show-correct {
+    border-color: #059669;
+    background: #0d2318;
+  }
+
+  .option-letter {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 50%;
+    border: 1.5px solid #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    transition: all 0.18s;
+    color: #94a3b8;
+    margin-top: 1px;
+  }
+
+  .option.selected .option-letter { border-color: #7c3aed; background: #7c3aed; color: #fff; }
+  .option.correct-ans .option-letter { border-color: #059669; background: #059669; color: #fff; }
+  .option.wrong-ans .option-letter { border-color: #dc2626; background: #dc2626; color: #fff; }
+  .option.show-correct .option-letter { border-color: #059669; background: #059669; color: #fff; }
+
+  .option-text { font-size: 0.91rem; line-height: 1.55; color: #cbd5e1; padding-top: 2px; }
+  .option.correct-ans .option-text,
+  .option.show-correct .option-text { color: #6ee7b7; }
+  .option.wrong-ans .option-text { color: #fca5a5; }
+
+  .explanation {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: #0f1624;
+    border-left: 4px solid #7c3aed;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: #94a3b8;
+  }
+
+  .explanation.visible { display: block; }
+  .explanation strong { color: #c4b5fd; }
+
+  .result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .result-badge.correct-badge { background: #064e3b; color: #34d399; }
+  .result-badge.wrong-badge { background: #450a0a; color: #f87171; }
+
+  .multi-note {
+    font-size: 0.78rem;
+    color: #f59e0b;
+    margin-bottom: 10px;
+    font-weight: 600;
+    background: #1c1500;
+    border: 1px solid #78350f;
+    padding: 5px 10px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .submit-btn {
+    display: block;
+    margin: 32px auto 0;
+    padding: 14px 48px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(124,58,237,0.4);
+  }
+
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.5); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .final-result {
+    display: none;
+    background: linear-gradient(135deg, #1a1d2e, #221b3a);
+    border: 1px solid #4f46e5;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    margin: 32px 0;
+  }
+
+  .final-result.visible { display: block; }
+  .final-score { font-size: 3.5rem; font-weight: 900; }
+  .final-score.pass { color: #34d399; }
+  .final-score.fail { color: #f87171; }
+  .final-label { font-size: 1.2rem; margin: 8px 0 4px; font-weight: 700; }
+  .final-sub { font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px; }
+  .final-stats { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin: 20px 0; }
+  .stat-box { text-align: center; }
+  .stat-num { font-size: 1.8rem; font-weight: 800; }
+  .stat-lbl { font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pass-mark { font-size: 0.82rem; color: #94a3b8; margin-top: 8px; }
+
+  .retry-btn {
+    margin-top: 20px;
+    padding: 12px 36px;
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .review-btn {
+    margin-top: 10px;
+    padding: 12px 36px;
+    background: transparent;
+    color: #a78bfa;
+    border: 1.5px solid #7c3aed;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .disabled { cursor: default; pointer-events: none; }
+
+  .q-flag {
+    background: none;
+    border: 1.5px solid #4b5563;
+    border-radius: 6px;
+    color: #4b5563;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 3px 8px;
+    margin-left: auto;
+    transition: all 0.2s;
+  }
+  .q-flag.flagged { border-color: #f59e0b; color: #f59e0b; }
+
+  @media (max-width: 600px) {
+    .header { flex-direction: column; gap: 12px; text-align: center; }
+    .container { padding: 0 12px 60px; }
+    .question-card { padding: 20px 16px; }
+    .final-stats { gap: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>HashiCorp Terraform Associate (003)</h1>
+    <div class="subtitle">Official Practice Exam &nbsp;|&nbsp; 57 Questions &nbsp;|&nbsp; 60 Minutes &nbsp;|&nbsp; Pass: 70%</div>
+  </div>
+  <div class="timer-box">
+    <div class="timer-label">Time Remaining</div>
+    <div class="timer-value" id="timer">60:00</div>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-text" id="progressText">0 / 57 answered</div>
+</div>
+
+<div class="score-summary">
+  <span>Live Score: <span class="correct" id="liveCorrect">0</span> correct</span>
+  <span><span class="incorrect" id="liveIncorrect">0</span> incorrect</span>
+  <span><span class="skipped" id="liveSkipped">57</span> remaining</span>
+</div>
+
+<div class="container" id="examContainer"></div>
+
+<script>
+const QUESTIONS = [
+  {
+    id: 1,
+    domain: "IaC Concepts",
+    text: "Which of the following best describes Infrastructure as Code (IaC)?",
+    options: [
+      { letter: "A", text: "Manually provisioning infrastructure through a cloud provider's graphical console" },
+      { letter: "B", text: "Managing and provisioning infrastructure through machine-readable configuration files rather than manual processes" },
+      { letter: "C", text: "Using scripts written only in Python to manage cloud resources" },
+      { letter: "D", text: "Deploying containers using orchestration platforms like Kubernetes" }
+    ],
+    correct: "B",
+    explanation: "<strong>IaC</strong> means managing infrastructure via configuration files that can be versioned, tested, and reused — enabling consistency and reproducibility. GUI-driven provisioning and container orchestration are separate concepts."
+  },
+  {
+    id: 2,
+    domain: "IaC Concepts",
+    text: "Which of the following are key benefits of IaC? (Select TWO)",
+    multi: true,
+    options: [
+      { letter: "A", text: "Eliminates the need for any cloud accounts or credentials" },
+      { letter: "B", text: "Enables version control and peer review of infrastructure changes" },
+      { letter: "C", text: "Guarantees zero infrastructure costs" },
+      { letter: "D", text: "Reduces configuration drift by enforcing a consistent desired state" }
+    ],
+    correct: ["B", "D"],
+    explanation: "<strong>Version control</strong> (B) allows teams to track, review, and roll back changes. <strong>Reducing config drift</strong> (D) means the real world matches what's defined in code. IaC doesn't eliminate credentials or reduce costs by itself."
+  },
+  {
+    id: 3,
+    domain: "Terraform Purpose",
+    text: "How does Terraform differ from configuration management tools like Ansible or Chef?",
+    options: [
+      { letter: "A", text: "Terraform is primarily designed for provisioning infrastructure, while Ansible/Chef focus on configuring software on existing servers" },
+      { letter: "B", text: "Terraform can only be used with AWS, whereas Ansible supports multiple providers" },
+      { letter: "C", text: "Terraform does not support any cloud providers natively" },
+      { letter: "D", text: "Terraform uses a mutable infrastructure model, while Ansible uses an immutable one" }
+    ],
+    correct: "A",
+    explanation: "<strong>Terraform</strong> is an infrastructure <em>provisioning</em> tool (creating VMs, networks, storage). Tools like Ansible are primarily <em>configuration management</em> tools that install/configure software on already-provisioned servers. The two are complementary."
+  },
+  {
+    id: 4,
+    domain: "Terraform Purpose",
+    text: "Terraform uses a declarative approach to infrastructure management. What does this mean?",
+    options: [
+      { letter: "A", text: "You must define each individual API call needed to reach the desired infrastructure state" },
+      { letter: "B", text: "You describe the desired end state of your infrastructure, and Terraform figures out how to reach it" },
+      { letter: "C", text: "Terraform only supports sequential, step-by-step resource creation" },
+      { letter: "D", text: "Each Terraform configuration file must be executed in a specific order you define" }
+    ],
+    correct: "B",
+    explanation: "In a <strong>declarative</strong> model, you state <em>what</em> you want (e.g., 3 EC2 instances), and Terraform determines <em>how</em> to create, update, or destroy resources to achieve that state. Imperative tools require you to define the exact steps."
+  },
+  {
+    id: 5,
+    domain: "Terraform Basics",
+    text: "What is the correct order of the core Terraform workflow?",
+    options: [
+      { letter: "A", text: "Write → Apply → Plan → Destroy" },
+      { letter: "B", text: "Plan → Write → Init → Apply" },
+      { letter: "C", text: "Write → Init → Plan → Apply" },
+      { letter: "D", text: "Init → Write → Destroy → Apply" }
+    ],
+    correct: "C",
+    explanation: "The core Terraform workflow is: <strong>Write</strong> (author configs) → <strong>Init</strong> (initialize providers/modules) → <strong>Plan</strong> (preview changes) → <strong>Apply</strong> (execute changes). Init must come before plan/apply."
+  },
+  {
+    id: 6,
+    domain: "Terraform Basics",
+    text: "What does `terraform init` do? (Select TWO)",
+    multi: true,
+    options: [
+      { letter: "A", text: "Creates all resources defined in the configuration" },
+      { letter: "B", text: "Downloads and installs the required provider plugins" },
+      { letter: "C", text: "Initializes the backend for storing Terraform state" },
+      { letter: "D", text: "Validates the syntax of all .tf files in the directory" }
+    ],
+    correct: ["B", "C"],
+    explanation: "<strong>terraform init</strong> downloads providers (B) and initializes the configured backend (C). It does NOT create resources (that's `apply`) or validate syntax (that's `validate`)."
+  },
+  {
+    id: 7,
+    domain: "Terraform Basics",
+    text: "What does the `terraform plan` command produce?",
+    options: [
+      { letter: "A", text: "It immediately provisions all resources in the configuration" },
+      { letter: "B", text: "It destroys all existing infrastructure to prepare for a fresh deployment" },
+      { letter: "C", text: "It generates an execution plan showing what Terraform will do to reach the desired state" },
+      { letter: "D", text: "It backs up the current state file before any changes are made" }
+    ],
+    correct: "C",
+    explanation: "<strong>terraform plan</strong> is a dry-run that shows additions, changes, and destructions without making any real changes. It's a preview, not an execution."
+  },
+  {
+    id: 8,
+    domain: "Terraform Basics",
+    text: "A team member runs `terraform apply` and is presented with the execution plan and a prompt. What input is required to proceed?",
+    options: [
+      { letter: "A", text: "The word \"proceed\"" },
+      { letter: "B", text: "The word \"yes\"" },
+      { letter: "C", text: "The word \"apply\"" },
+      { letter: "D", text: "Pressing Enter with no text" }
+    ],
+    correct: "B",
+    explanation: "By default, <strong>terraform apply</strong> shows the plan and waits for the user to type <strong>yes</strong> to confirm. Anything other than \"yes\" aborts the operation. Use `-auto-approve` to skip this prompt in automation."
+  },
+  {
+    id: 9,
+    domain: "Terraform Basics",
+    text: "What is the purpose of `terraform destroy`?",
+    options: [
+      { letter: "A", text: "Removes all .terraform directories and cached plugins" },
+      { letter: "B", text: "Deletes the Terraform state file and configuration" },
+      { letter: "C", text: "Terminates all resources managed by the current Terraform configuration" },
+      { letter: "D", text: "Rolls back the last terraform apply operation" }
+    ],
+    correct: "C",
+    explanation: "<strong>terraform destroy</strong> plans and applies the destruction of all resources tracked in the current state file. It is the reverse of apply. It does not remove config files, state backups, or plugin caches."
+  },
+  {
+    id: 10,
+    domain: "Terraform Providers",
+    text: "What is a Terraform provider?",
+    options: [
+      { letter: "A", text: "A paid service offered by HashiCorp to manage Terraform configurations" },
+      { letter: "B", text: "A plugin that allows Terraform to interact with a specific infrastructure platform or service via its API" },
+      { letter: "C", text: "A type of Terraform variable used to pass credentials to resources" },
+      { letter: "D", text: "A Terraform module that groups related resources together" }
+    ],
+    correct: "B",
+    explanation: "A <strong>provider</strong> is a plugin that translates Terraform resource definitions into API calls for a specific platform (AWS, Azure, GCP, GitHub, etc.). Without a provider, Terraform has no way to communicate with external services."
+  },
+  {
+    id: 11,
+    domain: "Terraform Providers",
+    text: "Given the following provider block, what will happen during `terraform init`?\n\nprovider \"aws\" {\n  region = \"us-east-1\"\n}\n\nrequired_providers {\n  aws = {\n    source  = \"hashicorp/aws\"\n    version = \"~> 5.0\"\n  }\n}",
+    code: true,
+    options: [
+      { letter: "A", text: "Terraform will download any AWS provider version between 5.0.0 and 5.99.99 (but not 6.0)" },
+      { letter: "B", text: "Terraform will download exactly version 5.0.0 of the AWS provider" },
+      { letter: "C", text: "Terraform will download the latest available version of the AWS provider regardless of major version" },
+      { letter: "D", text: "The configuration is invalid because version constraints must use >= syntax" }
+    ],
+    correct: "A",
+    explanation: "The <strong>~></strong> (pessimistic constraint operator) means: allow only the rightmost version component to increment. <code>~> 5.0</code> allows ≥5.0 and <6.0 — i.e., 5.x.x but not 6.0."
+  },
+  {
+    id: 12,
+    domain: "Terraform Providers",
+    text: "Where are provider plugins stored after running `terraform init`?",
+    options: [
+      { letter: "A", text: "In a global directory at /usr/local/bin/terraform-providers" },
+      { letter: "B", text: "In the .terraform/providers/ directory within the working directory" },
+      { letter: "C", text: "In the ~/.terraform.d/plugins/ directory by default for all projects" },
+      { letter: "D", text: "Providers are not stored locally; they are fetched fresh on every terraform command" }
+    ],
+    correct: "B",
+    explanation: "After <code>terraform init</code>, provider plugins are cached in <strong>.terraform/providers/</strong> within the current working directory. A global plugin cache can optionally be configured in the CLI config."
+  },
+  {
+    id: 13,
+    domain: "Terraform State",
+    text: "What is the purpose of Terraform state?",
+    options: [
+      { letter: "A", text: "To store the Terraform binary and provider executables" },
+      { letter: "B", text: "To map Terraform configuration to real-world infrastructure resources and track metadata" },
+      { letter: "C", text: "To hold all variable values in an encrypted file" },
+      { letter: "D", text: "To serve as an audit log of every terraform apply run" }
+    ],
+    correct: "B",
+    explanation: "Terraform <strong>state</strong> is a JSON file that maps each resource in your config to its real-world counterpart (e.g., an EC2 instance ID). Terraform uses it to calculate diffs, track dependencies, and avoid unnecessary changes."
+  },
+  {
+    id: 14,
+    domain: "Terraform State",
+    text: "By default, where does Terraform store its state file?",
+    options: [
+      { letter: "A", text: "In an S3 bucket named 'terraform-state' in your AWS account" },
+      { letter: "B", text: "In HashiCorp's cloud service" },
+      { letter: "C", text: "In a file named terraform.tfstate in the current working directory" },
+      { letter: "D", text: "In a hidden directory at ~/.terraform/state/" }
+    ],
+    correct: "C",
+    explanation: "By default, Terraform uses a <strong>local backend</strong> and writes state to <code>terraform.tfstate</code> in the current working directory. This is fine for individuals but not for teams — remote backends should be used for collaboration."
+  },
+  {
+    id: 15,
+    domain: "Terraform State",
+    text: "Why is storing Terraform state in version control (e.g., Git) considered a bad practice?",
+    options: [
+      { letter: "A", text: "Version control systems cannot store binary files like the state file" },
+      { letter: "B", text: "The state file can contain sensitive data (like passwords) in plaintext, and concurrent writes can cause state corruption" },
+      { letter: "C", text: "Terraform requires state files to be stored in HCP Terraform (formerly Terraform Cloud)" },
+      { letter: "D", text: "Git has a 100MB file size limit that the state file will inevitably exceed" }
+    ],
+    correct: "B",
+    explanation: "State files can contain <strong>plaintext secrets</strong> (DB passwords, API keys written by providers) and are not designed for concurrent writes — two team members running apply simultaneously can corrupt state. Use a remote backend with locking instead."
+  },
+  {
+    id: 16,
+    domain: "Terraform State",
+    text: "Which command allows you to inspect the resources tracked in the current Terraform state?",
+    options: [
+      { letter: "A", text: "terraform show" },
+      { letter: "B", text: "terraform state list" },
+      { letter: "C", text: "terraform plan --state" },
+      { letter: "D", text: "terraform inspect" }
+    ],
+    correct: "B",
+    explanation: "<strong>terraform state list</strong> prints all resource addresses tracked in the state file. <code>terraform show</code> shows the full state content. <code>terraform inspect</code> does not exist as a command."
+  },
+  {
+    id: 17,
+    domain: "Terraform State",
+    text: "You need to remove a resource from Terraform state without destroying the actual infrastructure. Which command should you use?",
+    options: [
+      { letter: "A", text: "terraform state delete <address>" },
+      { letter: "B", text: "terraform destroy -target=<address>" },
+      { letter: "C", text: "terraform state rm <address>" },
+      { letter: "D", text: "terraform remove <address>" }
+    ],
+    correct: "C",
+    explanation: "<strong>terraform state rm</strong> removes a resource from the state file without affecting the real infrastructure. After removal, Terraform no longer manages that resource. <code>terraform destroy -target</code> would destroy the actual resource."
+  },
+  {
+    id: 18,
+    domain: "Terraform State",
+    text: "What is the purpose of state locking?",
+    options: [
+      { letter: "A", text: "To encrypt the state file at rest using AES-256" },
+      { letter: "B", text: "To prevent concurrent Terraform operations from corrupting the state file" },
+      { letter: "C", text: "To restrict which IAM users can view the state file" },
+      { letter: "D", text: "To prevent the state file from exceeding a configurable size limit" }
+    ],
+    correct: "B",
+    explanation: "<strong>State locking</strong> prevents multiple `terraform apply` runs from running simultaneously and corrupting the state. Not all backends support locking — S3+DynamoDB, HCP Terraform, and Terraform Enterprise all support it."
+  },
+  {
+    id: 19,
+    domain: "Terraform Configuration",
+    text: "What file extension is used for Terraform configuration files?",
+    options: [
+      { letter: "A", text: ".yaml" },
+      { letter: "B", text: ".tf" },
+      { letter: "C", text: ".hcl" },
+      { letter: "D", text: ".json only — .tf files are not valid" }
+    ],
+    correct: "B",
+    explanation: "Terraform configuration files use the <strong>.tf</strong> extension. They are written in HashiCorp Configuration Language (HCL). JSON format is also supported using <code>.tf.json</code>, but .tf is the standard."
+  },
+  {
+    id: 20,
+    domain: "Terraform Configuration",
+    text: "What is the correct way to reference an attribute of another resource in Terraform HCL?",
+    options: [
+      { letter: "A", text: "$(resource_type.resource_name.attribute)" },
+      { letter: "B", text: "${resource_type[resource_name].attribute}" },
+      { letter: "C", text: "resource_type.resource_name.attribute" },
+      { letter: "D", text: "ref(resource_type, resource_name, attribute)" }
+    ],
+    correct: "C",
+    explanation: "In Terraform HCL, resource attributes are referenced as <strong>resource_type.resource_name.attribute</strong>. This also creates an implicit dependency. Example: <code>aws_instance.web.id</code>. The <code>${...}</code> syntax is only needed inside string templates."
+  },
+  {
+    id: 21,
+    domain: "Terraform Configuration",
+    text: "Which of the following is the correct syntax to define an input variable with a default value in Terraform?",
+    options: [
+      { letter: "A", text: 'var "instance_type" {\n  default = "t3.micro"\n}' },
+      { letter: "B", text: 'variable "instance_type" {\n  default = "t3.micro"\n}' },
+      { letter: "C", text: 'input "instance_type" {\n  value = "t3.micro"\n}' },
+      { letter: "D", text: 'parameter "instance_type" {\n  default = "t3.micro"\n}' }
+    ],
+    correct: "B",
+    explanation: "Input variables are declared with the <strong>variable</strong> block. Common meta-arguments include: <code>type</code>, <code>default</code>, <code>description</code>, and <code>sensitive</code>. The keyword is always <code>variable</code>, not <code>var</code> or <code>input</code>."
+  },
+  {
+    id: 22,
+    domain: "Terraform Configuration",
+    text: "How do you reference an input variable named `region` inside a Terraform configuration?",
+    options: [
+      { letter: "A", text: "$region" },
+      { letter: "B", text: "input.region" },
+      { letter: "C", text: "var.region" },
+      { letter: "D", text: "variables.region" }
+    ],
+    correct: "C",
+    explanation: "Input variables are accessed using the <strong>var.</strong> prefix: <code>var.region</code>. The <code>var</code> object is a special top-level namespace in Terraform for all declared input variables."
+  },
+  {
+    id: 23,
+    domain: "Terraform Configuration",
+    text: "What is the correct way to define a local value named `full_name` that concatenates `var.first_name` and `var.last_name`?",
+    options: [
+      { letter: "A", text: 'local "full_name" {\n  value = "${var.first_name} ${var.last_name}"\n}' },
+      { letter: "B", text: 'locals {\n  full_name = "${var.first_name} ${var.last_name}"\n}' },
+      { letter: "C", text: 'locals {\n  full_name = var.first_name + var.last_name\n}' },
+      { letter: "D", text: 'variable "full_name" {\n  value = "${var.first_name} ${var.last_name}"\n}' }
+    ],
+    correct: "B",
+    explanation: "Local values use the <strong>locals</strong> block (plural). Multiple locals are defined inside one block. They are referenced as <code>local.full_name</code> (singular). String interpolation uses <code>\"${...}\"</code> syntax."
+  },
+  {
+    id: 24,
+    domain: "Terraform Configuration",
+    text: "Which of the following correctly defines an output value that exposes an EC2 instance's public IP?",
+    options: [
+      { letter: "A", text: 'export "instance_ip" {\n  value = aws_instance.web.public_ip\n}' },
+      { letter: "B", text: 'output "instance_ip" {\n  value = aws_instance.web.public_ip\n}' },
+      { letter: "C", text: 'return "instance_ip" {\n  value = aws_instance.web.public_ip\n}' },
+      { letter: "D", text: 'output = aws_instance.web.public_ip' }
+    ],
+    correct: "B",
+    explanation: "Output values use the <strong>output</strong> block with a <code>value</code> argument. They display values after apply, expose data to parent modules, and can be queried with <code>terraform output</code>."
+  },
+  {
+    id: 25,
+    domain: "Terraform Configuration",
+    text: "What is the `terraform.tfvars` file used for?",
+    options: [
+      { letter: "A", text: "To define provider configurations and backend settings" },
+      { letter: "B", text: "To automatically assign values to input variables without using -var flags" },
+      { letter: "C", text: "To store the Terraform state for the current workspace" },
+      { letter: "D", text: "To declare new resource types not included in any provider" }
+    ],
+    correct: "B",
+    explanation: "A <code>terraform.tfvars</code> file (or <code>*.auto.tfvars</code>) is automatically loaded by Terraform to <strong>assign values to variables</strong>. This avoids repeating <code>-var</code> flags on the CLI. Values here override defaults but are overridden by CLI flags."
+  },
+  {
+    id: 26,
+    domain: "Terraform Configuration",
+    text: "In Terraform, what is the order of precedence for variable values (highest to lowest)?",
+    options: [
+      { letter: "A", text: "Default → Environment variable → .tfvars file → -var flag" },
+      { letter: "B", text: "-var flag → .tfvars file → Environment variable → Default" },
+      { letter: "C", text: "Environment variable → -var flag → .tfvars file → Default" },
+      { letter: "D", text: ".tfvars file → -var flag → Environment variable → Default" }
+    ],
+    correct: "B",
+    explanation: "Terraform variable precedence (highest wins): <strong>-var or -var-file CLI flag > *.auto.tfvars / terraform.tfvars > TF_VAR_ env vars > variable default</strong>. CLI flags always win."
+  },
+  {
+    id: 27,
+    domain: "Terraform Modules",
+    text: "What is a Terraform module?",
+    options: [
+      { letter: "A", text: "A built-in Terraform function for performing mathematical operations" },
+      { letter: "B", text: "A container of .tf files that groups related resources into a reusable, encapsulated unit" },
+      { letter: "C", text: "A third-party plugin that extends Terraform's core functionality" },
+      { letter: "D", text: "A Terraform workspace for isolating environments like staging and production" }
+    ],
+    correct: "B",
+    explanation: "A <strong>module</strong> is a collection of <code>.tf</code> files in a directory. All configurations have a <em>root module</em>. <em>Child modules</em> are called from root or other modules via a <code>module</code> block. Modules enable reuse, abstraction, and organization."
+  },
+  {
+    id: 28,
+    domain: "Terraform Modules",
+    text: "Which of the following module sources are valid in Terraform? (Select TWO)",
+    multi: true,
+    options: [
+      { letter: "A", text: "A local path like ./modules/vpc" },
+      { letter: "B", text: "A public Terraform Registry module like hashicorp/consul/aws" },
+      { letter: "C", text: "A Docker Hub container image" },
+      { letter: "D", text: "A Python package from PyPI" }
+    ],
+    correct: ["A", "B"],
+    explanation: "Valid module sources include: <strong>local paths</strong> (./modules/vpc), <strong>Terraform Registry</strong> (hashicorp/consul/aws), GitHub/GitLab URLs, HTTP URLs, S3 buckets, and GCS buckets. Docker images and PyPI packages are not valid sources."
+  },
+  {
+    id: 29,
+    domain: "Terraform Modules",
+    text: "After adding a new module call to your configuration, what command must you run before using it?",
+    options: [
+      { letter: "A", text: "terraform get" },
+      { letter: "B", text: "terraform module install" },
+      { letter: "C", text: "terraform init" },
+      { letter: "D", text: "terraform validate" }
+    ],
+    correct: "C",
+    explanation: "Running <strong>terraform init</strong> downloads and installs any new or changed modules. <code>terraform get</code> is an older command that also downloads modules but doesn't initialize backends or providers — <code>init</code> is the standard modern command."
+  },
+  {
+    id: 30,
+    domain: "Terraform Modules",
+    text: "What is the Terraform Registry?",
+    options: [
+      { letter: "A", text: "A local database that stores all previously applied Terraform states" },
+      { letter: "B", text: "A publicly accessible repository for sharing and distributing Terraform modules and providers" },
+      { letter: "C", text: "An enterprise feature that tracks all resources across multiple workspaces" },
+      { letter: "D", text: "A HashiCorp tool for visualizing Terraform resource graphs" }
+    ],
+    correct: "B",
+    explanation: "The <strong>Terraform Registry</strong> (registry.terraform.io) is the public distribution platform for providers and modules. Anyone can publish modules there. HCP Terraform has a Private Registry for internal modules."
+  },
+  {
+    id: 31,
+    domain: "Terraform Built-in Functions",
+    text: "What does the following Terraform expression evaluate to?\n\nlength([\"a\", \"b\", \"c\"])",
+    code: true,
+    options: [
+      { letter: "A", text: "\"abc\"" },
+      { letter: "B", text: "3" },
+      { letter: "C", text: "[\"a\", \"b\", \"c\"]" },
+      { letter: "D", text: "An error — length() only works on strings" }
+    ],
+    correct: "B",
+    explanation: "The <strong>length()</strong> function returns the number of elements in a list, map, or the number of characters in a string. <code>length([\"a\",\"b\",\"c\"])</code> returns <strong>3</strong>."
+  },
+  {
+    id: 32,
+    domain: "Terraform Built-in Functions",
+    text: "Which Terraform function would you use to read the contents of a file at a given path and return it as a string?",
+    options: [
+      { letter: "A", text: "read_file()" },
+      { letter: "B", text: "filebase64()" },
+      { letter: "C", text: "file()" },
+      { letter: "D", text: "load_file()" }
+    ],
+    correct: "C",
+    explanation: "The <strong>file()</strong> function reads a file from disk and returns its contents as a string. <code>filebase64()</code> reads a file and returns its base64-encoded contents — useful for user_data fields."
+  },
+  {
+    id: 33,
+    domain: "Terraform Built-in Functions",
+    text: "What is the result of `toset([\"a\", \"b\", \"a\", \"c\"])` in Terraform?",
+    options: [
+      { letter: "A", text: "[\"a\", \"b\", \"a\", \"c\"]" },
+      { letter: "B", text: "[\"a\", \"b\", \"c\"] (duplicates removed, order not guaranteed)" },
+      { letter: "C", text: "An error because sets cannot be created from lists with duplicates" },
+      { letter: "D", text: "4 (the count of elements)" }
+    ],
+    correct: "B",
+    explanation: "<strong>toset()</strong> converts a list to a set, removing duplicates. Sets in Terraform are unordered and contain only unique values. This is commonly used with <code>for_each</code> to iterate over unique values."
+  },
+  {
+    id: 34,
+    domain: "Terraform Meta-Arguments",
+    text: "What is the purpose of the `depends_on` meta-argument?",
+    options: [
+      { letter: "A", text: "To create an explicit dependency between resources when Terraform cannot infer it automatically from references" },
+      { letter: "B", text: "To specify the order in which provider plugins are loaded" },
+      { letter: "C", text: "To declare that a resource depends on a specific Terraform version" },
+      { letter: "D", text: "To prevent a resource from being destroyed when running terraform destroy" }
+    ],
+    correct: "A",
+    explanation: "<strong>depends_on</strong> creates an explicit dependency used when one resource depends on another's side effects but doesn't reference its attributes directly. Terraform normally infers dependencies from references automatically."
+  },
+  {
+    id: 35,
+    domain: "Terraform Meta-Arguments",
+    text: "You want to create 3 identical EC2 instances using a single resource block. Which meta-argument should you use?",
+    options: [
+      { letter: "A", text: "repeat = 3" },
+      { letter: "B", text: "count = 3" },
+      { letter: "C", text: "instances = 3" },
+      { letter: "D", text: "multiply = 3" }
+    ],
+    correct: "B",
+    explanation: "The <strong>count</strong> meta-argument creates multiple instances of a resource. With <code>count = 3</code>, Terraform creates 3 instances accessible as <code>aws_instance.web[0]</code>, <code>[1]</code>, and <code>[2]</code>."
+  },
+  {
+    id: 36,
+    domain: "Terraform Meta-Arguments",
+    text: "What is the key difference between `count` and `for_each` meta-arguments?",
+    options: [
+      { letter: "A", text: "count creates numbered instances (0,1,2...) while for_each creates instances keyed by a map or set value" },
+      { letter: "B", text: "for_each is faster than count because it uses parallel execution" },
+      { letter: "C", text: "count is only for aws resources, for_each works with any provider" },
+      { letter: "D", text: "for_each creates resources across multiple providers while count is single-provider" }
+    ],
+    correct: "A",
+    explanation: "<strong>count</strong> uses integer indices ([0], [1]). <strong>for_each</strong> uses string keys from a map or set, so instances are addressed as <code>resource[\"key\"]</code>. <code>for_each</code> avoids the index-shift problem when removing an item from the middle of a list."
+  },
+  {
+    id: 37,
+    domain: "Terraform Meta-Arguments",
+    text: "What does the `lifecycle` block with `create_before_destroy = true` do?",
+    options: [
+      { letter: "A", text: "Ensures that data sources are read before resources are created" },
+      { letter: "B", text: "When a resource must be replaced, creates the new resource before destroying the old one to minimize downtime" },
+      { letter: "C", text: "Prevents any resource from being destroyed until a newer version is deployed" },
+      { letter: "D", text: "Forces Terraform to apply in two separate phases: first create, then destroy all unused resources" }
+    ],
+    correct: "B",
+    explanation: "By default Terraform destroys the old resource then creates the new one. <strong>create_before_destroy = true</strong> reverses this — the replacement is created first, then the old one is destroyed. Useful for zero-downtime deployments."
+  },
+  {
+    id: 38,
+    domain: "Terraform Meta-Arguments",
+    text: "What does `prevent_destroy = true` in a `lifecycle` block do?",
+    options: [
+      { letter: "A", text: "Prevents the resource from being modified after initial creation" },
+      { letter: "B", text: "Causes Terraform to error out if any plan would destroy that resource" },
+      { letter: "C", text: "Hides the resource from terraform state list output" },
+      { letter: "D", text: "Prevents terraform destroy from running on the entire configuration" }
+    ],
+    correct: "B",
+    explanation: "<strong>prevent_destroy = true</strong> adds a safeguard — Terraform will return an error if any change would result in the destruction of that resource. This protects critical resources like production databases. Note: it only works in .tf files, not as a CLI flag."
+  },
+  {
+    id: 39,
+    domain: "Terraform Backends",
+    text: "What is a Terraform backend?",
+    options: [
+      { letter: "A", text: "The cloud provider where Terraform creates resources" },
+      { letter: "B", text: "The configuration that determines where Terraform state is stored and how operations are executed" },
+      { letter: "C", text: "The server that runs the Terraform binary during CI/CD" },
+      { letter: "D", text: "A type of Terraform provider specifically for databases" }
+    ],
+    correct: "B",
+    explanation: "A <strong>backend</strong> defines where state is stored (local, S3, HCP Terraform, etc.) and optionally how operations are performed. Remote backends enable collaboration, state locking, and storing state outside of version control."
+  },
+  {
+    id: 40,
+    domain: "Terraform Backends",
+    text: "Which combination correctly implements a remote backend with state locking on AWS?",
+    options: [
+      { letter: "A", text: "S3 bucket for state + RDS database for locking" },
+      { letter: "B", text: "S3 bucket for state + DynamoDB table for locking" },
+      { letter: "C", text: "EFS filesystem for state + SQS queue for locking" },
+      { letter: "D", text: "S3 bucket for both state and locking (no additional service needed)" }
+    ],
+    correct: "B",
+    explanation: "The standard AWS remote backend pattern is: <strong>S3</strong> to store the state file + <strong>DynamoDB</strong> table (with a LockID primary key) for state locking. S3 alone does not provide atomic locking."
+  },
+  {
+    id: 41,
+    domain: "HCP Terraform",
+    text: "What are the two workflow modes available in HCP Terraform (formerly Terraform Cloud)?",
+    options: [
+      { letter: "A", text: "Local execution and remote execution" },
+      { letter: "B", text: "Read-only mode and write mode" },
+      { letter: "C", text: "Staging mode and production mode" },
+      { letter: "D", text: "GUI mode and CLI mode" }
+    ],
+    correct: "A",
+    explanation: "HCP Terraform supports <strong>remote execution</strong> (plans/applies run on HCP Terraform's infrastructure) and <strong>local execution</strong> (plans/applies run locally but state is stored remotely). Remote execution enables consistent environments and policy enforcement."
+  },
+  {
+    id: 42,
+    domain: "HCP Terraform",
+    text: "What is a Sentinel policy in HCP Terraform?",
+    options: [
+      { letter: "A", text: "An IAM policy that restricts which AWS resources Terraform can create" },
+      { letter: "B", text: "A policy-as-code framework that enforces governance rules on Terraform plans before they are applied" },
+      { letter: "C", text: "A network security policy that controls inbound access to Terraform agents" },
+      { letter: "D", text: "An alerting rule that notifies teams when a workspace exceeds its resource quota" }
+    ],
+    correct: "B",
+    explanation: "<strong>Sentinel</strong> is HashiCorp's policy-as-code framework integrated with HCP Terraform. It allows organizations to enforce standards (e.g., 'all S3 buckets must have encryption enabled') and can block applies that violate policies. Available on Team & Governance tier and above."
+  },
+  {
+    id: 43,
+    domain: "Terraform Workspaces",
+    text: "What is the purpose of Terraform workspaces?",
+    options: [
+      { letter: "A", text: "To run Terraform in multiple cloud accounts simultaneously" },
+      { letter: "B", text: "To maintain multiple separate state files for the same configuration, enabling environment isolation" },
+      { letter: "C", text: "To allow multiple team members to edit .tf files at the same time without conflicts" },
+      { letter: "D", text: "To group related Terraform modules into a single deployable unit" }
+    ],
+    correct: "B",
+    explanation: "<strong>Workspaces</strong> allow you to maintain separate state files for the same configuration directory. Each workspace has its own state, so you can use one config for dev, staging, and prod with isolated state. The default workspace is named 'default'."
+  },
+  {
+    id: 44,
+    domain: "Terraform Workspaces",
+    text: "How do you create and switch to a new Terraform workspace named 'staging'?",
+    options: [
+      { letter: "A", text: "terraform workspace create staging && terraform workspace use staging" },
+      { letter: "B", text: "terraform workspace new staging" },
+      { letter: "C", text: "terraform env new staging" },
+      { letter: "D", text: "terraform switch --workspace staging" }
+    ],
+    correct: "B",
+    explanation: "<strong>terraform workspace new staging</strong> creates the workspace AND switches to it in one command. <code>terraform workspace select staging</code> switches to an existing workspace. <code>terraform env</code> was the old (deprecated) command."
+  },
+  {
+    id: 45,
+    domain: "Terraform Provisioners",
+    text: "When should Terraform provisioners be used?",
+    options: [
+      { letter: "A", text: "As the primary method for bootstrapping compute instances in production" },
+      { letter: "B", text: "As a last resort when no provider-native solution or better alternative exists" },
+      { letter: "C", text: "Whenever you need to run scripts on remote resources" },
+      { letter: "D", text: "Provisioners are deprecated and should never be used in modern Terraform" }
+    ],
+    correct: "B",
+    explanation: "HashiCorp officially recommends using provisioners only as a <strong>last resort</strong>. They break the declarative model, are opaque to Terraform's plan, can fail silently, and create hidden dependencies. Prefer cloud-init, user_data, or configuration management tools instead."
+  },
+  {
+    id: 46,
+    domain: "Terraform Provisioners",
+    text: "What is the behavior of a `local-exec` provisioner when it fails?",
+    options: [
+      { letter: "A", text: "Terraform silently ignores the failure and marks the resource as successfully created" },
+      { letter: "B", text: "Terraform marks the resource as tainted and plans to recreate it on the next apply" },
+      { letter: "C", text: "Terraform automatically retries the provisioner up to 3 times before failing" },
+      { letter: "D", text: "Terraform rolls back all changes made during that apply" }
+    ],
+    correct: "B",
+    explanation: "If a provisioner fails, Terraform <strong>taints</strong> the resource — it is marked for recreation on the next apply. This behavior ensures the failed resource isn't left in an uncertain state. Use <code>on_failure = continue</code> to override this behavior."
+  },
+  {
+    id: 47,
+    domain: "Terraform Import",
+    text: "What is `terraform import` used for?",
+    options: [
+      { letter: "A", text: "To import Terraform modules from the public registry into your local directory" },
+      { letter: "B", text: "To bring existing infrastructure resources (created outside Terraform) under Terraform management" },
+      { letter: "C", text: "To copy state from one workspace to another" },
+      { letter: "D", text: "To migrate from one backend type to another" }
+    ],
+    correct: "B",
+    explanation: "<strong>terraform import</strong> maps an existing real-world resource (by its ID) to a resource address in your configuration. After import, Terraform tracks that resource in state. You still need to write the corresponding configuration block manually."
+  },
+  {
+    id: 48,
+    domain: "Terraform Data Sources",
+    text: "What is a Terraform data source?",
+    options: [
+      { letter: "A", text: "A special type of variable that reads its value from a file on disk" },
+      { letter: "B", text: "A configuration block that fetches and exposes read-only information from an external system" },
+      { letter: "C", text: "A Terraform backend configuration for reading from databases" },
+      { letter: "D", text: "An output value that exports resource attributes for other modules" }
+    ],
+    correct: "B",
+    explanation: "A <strong>data source</strong> (using the <code>data</code> block) reads existing information from a provider without creating or managing infrastructure. For example, fetching the latest AMI ID, reading an existing VPC, or looking up a Route53 zone."
+  },
+  {
+    id: 49,
+    domain: "Terraform Data Sources",
+    text: "Given this data source, how would you reference the returned AMI ID?\n\ndata \"aws_ami\" \"ubuntu\" {\n  most_recent = true\n  filter {\n    name   = \"name\"\n    values = [\"ubuntu/images/*\"]\n  }\n}",
+    code: true,
+    options: [
+      { letter: "A", text: "aws_ami.ubuntu.image_id" },
+      { letter: "B", text: "data.ubuntu.image_id" },
+      { letter: "C", text: "data.aws_ami.ubuntu.id" },
+      { letter: "D", text: "aws_ami.data.ubuntu.id" }
+    ],
+    correct: "C",
+    explanation: "Data source attributes are referenced as <strong>data.&lt;type&gt;.&lt;name&gt;.&lt;attribute&gt;</strong>. So for this data source it's <code>data.aws_ami.ubuntu.id</code>. The <code>data.</code> prefix distinguishes data sources from managed resources."
+  },
+  {
+    id: 50,
+    domain: "Terraform CLI",
+    text: "Which command formats all .tf files in the current directory according to Terraform's style conventions?",
+    options: [
+      { letter: "A", text: "terraform lint" },
+      { letter: "B", text: "terraform fmt" },
+      { letter: "C", text: "terraform style" },
+      { letter: "D", text: "terraform format --fix" }
+    ],
+    correct: "B",
+    explanation: "<strong>terraform fmt</strong> rewrites configuration files to conform to Terraform's canonical style (indentation, spacing, alignment). Run with <code>-recursive</code> to process subdirectories. Use <code>-check</code> in CI to verify formatting without modifying files."
+  },
+  {
+    id: 51,
+    domain: "Terraform CLI",
+    text: "What does `terraform validate` check?",
+    options: [
+      { letter: "A", text: "Whether the AWS credentials are valid and have sufficient permissions" },
+      { letter: "B", text: "Whether the configuration is syntactically valid and internally consistent (without accessing remote state or APIs)" },
+      { letter: "C", text: "Whether all planned resource changes are safe to apply" },
+      { letter: "D", text: "Whether the Terraform state file matches the actual infrastructure" }
+    ],
+    correct: "B",
+    explanation: "<strong>terraform validate</strong> checks syntax and internal consistency of config files (e.g., valid argument names, correct types) without making any network calls. It does NOT check that provider credentials are valid or that resources actually exist."
+  },
+  {
+    id: 52,
+    domain: "Terraform CLI",
+    text: "How do you generate a visual representation of the resource dependency graph?",
+    options: [
+      { letter: "A", text: "terraform show --graph" },
+      { letter: "B", text: "terraform graph | dot -Tsvg > graph.svg" },
+      { letter: "C", text: "terraform plan --visualize" },
+      { letter: "D", text: "terraform diagram" }
+    ],
+    correct: "B",
+    explanation: "<strong>terraform graph</strong> outputs a DOT-format description of the dependency graph. Pipe it to Graphviz's <code>dot</code> tool (e.g., <code>| dot -Tsvg > graph.svg</code>) to render it visually. Graphviz must be installed separately."
+  },
+  {
+    id: 53,
+    domain: "Terraform CLI",
+    text: "You want to apply changes only to a specific resource named `aws_instance.web`. Which flag should you use with `terraform apply`?",
+    options: [
+      { letter: "A", text: "-only=aws_instance.web" },
+      { letter: "B", text: "-resource=aws_instance.web" },
+      { letter: "C", text: "-target=aws_instance.web" },
+      { letter: "D", text: "-scope=aws_instance.web" }
+    ],
+    correct: "C",
+    explanation: "The <strong>-target</strong> flag limits the plan/apply to specific resources. Example: <code>terraform apply -target=aws_instance.web</code>. HashiCorp recommends using this sparingly — it can leave state out of sync with configuration."
+  },
+  {
+    id: 54,
+    domain: "Terraform CLI",
+    text: "What does `terraform taint <resource_address>` do? (Note: this command is deprecated in Terraform 0.15.2+)",
+    options: [
+      { letter: "A", text: "Permanently locks the resource from being modified" },
+      { letter: "B", text: "Marks the resource as needing replacement on the next terraform apply" },
+      { letter: "C", text: "Removes the resource from Terraform state" },
+      { letter: "D", text: "Tags the resource in the cloud provider with a 'tainted' label" }
+    ],
+    correct: "B",
+    explanation: "<strong>terraform taint</strong> marked a resource for replacement. On the next apply, Terraform would destroy and recreate it. This command is deprecated in favor of <code>terraform apply -replace=<address></code>, which does the same thing in a single step."
+  },
+  {
+    id: 55,
+    domain: "Terraform Sensitive Data",
+    text: "You declare an output value with `sensitive = true`. What happens when you run `terraform apply`?",
+    options: [
+      { letter: "A", text: "The value is encrypted in the state file" },
+      { letter: "B", text: "The value is redacted as (sensitive value) in terminal output but is still stored in plain text in state" },
+      { letter: "C", text: "The output is never stored in state and must be fetched directly from the provider" },
+      { letter: "D", text: "Terraform refuses to create the output and returns an error" }
+    ],
+    correct: "B",
+    explanation: "Marking an output <strong>sensitive = true</strong> suppresses the value in CLI output (shows as <code>(sensitive value)</code>), but the value is still stored in plain text in the state file. <strong>You must protect your state file to protect sensitive data.</strong>"
+  },
+  {
+    id: 56,
+    domain: "Terraform Cloud / Enterprise",
+    text: "What is the difference between HCP Terraform (formerly Terraform Cloud) and Terraform Enterprise?",
+    options: [
+      { letter: "A", text: "HCP Terraform is free while Terraform Enterprise requires an annual subscription" },
+      { letter: "B", text: "HCP Terraform is a SaaS offering managed by HashiCorp; Terraform Enterprise is a self-hosted version for organizations with specific compliance requirements" },
+      { letter: "C", text: "HCP Terraform only supports AWS while Terraform Enterprise is multi-cloud" },
+      { letter: "D", text: "Terraform Enterprise has fewer features but runs faster than HCP Terraform" }
+    ],
+    correct: "B",
+    explanation: "<strong>HCP Terraform</strong> is a SaaS (managed by HashiCorp), available on free and paid tiers. <strong>Terraform Enterprise</strong> is a self-hosted deployment for organizations needing to run Terraform within their own infrastructure — typically for strict compliance, air-gapped environments, or data residency requirements."
+  },
+  {
+    id: 57,
+    domain: "Terraform Concepts",
+    text: "What is the concept of 'idempotency' as it applies to Terraform?",
+    options: [
+      { letter: "A", text: "Terraform can only be run once per configuration; subsequent runs require a new workspace" },
+      { letter: "B", text: "Running terraform apply multiple times on the same, unchanged configuration will not make additional changes beyond the first successful apply" },
+      { letter: "C", text: "Terraform automatically detects and removes resources that are no longer needed" },
+      { letter: "D", text: "Terraform encrypts the state file each time it is written to ensure data integrity" }
+    ],
+    correct: "B",
+    explanation: "<strong>Idempotency</strong> means applying the same configuration multiple times produces the same result. If your infrastructure already matches the desired state, <code>terraform apply</code> will report 'No changes.' This is a core principle of Terraform's declarative model."
+  }
+];
+
+// Shuffle answer options for each question
+function shuffleOptions(questions) {
+  return questions.map(q => {
+    const opts = [...q.options];
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+    // Reassign letters A-D
+    const letters = ["A","B","C","D"];
+    const newOpts = opts.map((o, i) => ({...o, letter: letters[i]}));
+
+    // Update correct answer(s)
+    const oldToNew = {};
+    opts.forEach((o, i) => { oldToNew[o.letter] = letters[i]; });
+
+    let newCorrect;
+    if (Array.isArray(q.correct)) {
+      newCorrect = q.correct.map(c => oldToNew[c]);
+    } else {
+      newCorrect = oldToNew[q.correct];
+    }
+
+    return {...q, options: newOpts, correct: newCorrect};
+  });
+}
+
+const questions = shuffleOptions(QUESTIONS);
+
+let answered = {};
+let submitted = false;
+let totalSeconds = 3600;
+let timerInterval;
+
+function buildExam() {
+  const container = document.getElementById("examContainer");
+  container.innerHTML = "";
+
+  questions.forEach((q, idx) => {
+    const card = document.createElement("div");
+    card.className = "question-card";
+    card.id = `q${q.id}`;
+
+    const isMulti = q.multi === true;
+
+    let optionsHTML = q.options.map(o => `
+      <div class="option" data-qid="${q.id}" data-letter="${o.letter}" onclick="selectOption(${q.id}, '${o.letter}', ${isMulti})">
+        <div class="option-letter">${o.letter}</div>
+        <div class="option-text">${o.text}</div>
+      </div>
+    `).join("");
+
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-number">Q${idx + 1}</div>
+        <div class="q-domain">${q.domain}</div>
+        <div class="q-text">${q.text}</div>
+        <button class="q-flag" id="flag${q.id}" onclick="toggleFlag(${q.id})">⚑ Flag</button>
+      </div>
+      ${q.code ? `<div class="code-block">${q.options.length > 0 ? q.text.replace(/^[^`]*`([^`]*)`[^`]*$/s,'').trim() : ""}</div>` : ""}
+      ${isMulti ? '<div class="multi-note">Select TWO answers</div>' : ""}
+      <div class="options">${optionsHTML}</div>
+      <div class="explanation" id="exp${q.id}"></div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  // Final submit button
+  const btn = document.createElement("button");
+  btn.className = "submit-btn";
+  btn.id = "submitBtn";
+  btn.textContent = "Submit Exam";
+  btn.onclick = submitExam;
+  container.appendChild(btn);
+
+  // Result card
+  const result = document.createElement("div");
+  result.className = "final-result";
+  result.id = "finalResult";
+  result.innerHTML = `
+    <div class="final-score" id="finalScoreText">--</div>
+    <div class="final-label" id="finalLabel">--</div>
+    <div class="final-sub" id="finalSub">--</div>
+    <div class="final-stats">
+      <div class="stat-box"><div class="stat-num" id="statCorrect" style="color:#34d399">-</div><div class="stat-lbl">Correct</div></div>
+      <div class="stat-box"><div class="stat-num" id="statIncorrect" style="color:#f87171">-</div><div class="stat-lbl">Incorrect</div></div>
+      <div class="stat-box"><div class="stat-num" id="statUnanswered" style="color:#fbbf24">-</div><div class="stat-lbl">Unanswered</div></div>
+      <div class="stat-box"><div class="stat-num" id="statTime" style="color:#60a5fa">-</div><div class="stat-lbl">Time Used</div></div>
+    </div>
+    <div class="pass-mark">Passing score: 70% (40 of 57 correct)</div>
+    <button class="retry-btn" onclick="retryExam()">Retake Exam</button>
+    <button class="review-btn" onclick="scrollToTop()">Review Answers</button>
+  `;
+  container.appendChild(result);
+}
+
+function selectOption(qid, letter, isMulti) {
+  if (submitted) return;
+  const q = questions.find(x => x.id === qid);
+  const card = document.getElementById(`q${qid}`);
+
+  if (isMulti) {
+    if (!answered[qid]) answered[qid] = [];
+    const arr = answered[qid];
+    const idx = arr.indexOf(letter);
+    if (idx > -1) {
+      arr.splice(idx, 1);
+    } else {
+      if (arr.length < 2) arr.push(letter);
+    }
+    card.querySelectorAll(".option").forEach(opt => {
+      opt.classList.remove("selected");
+      if (arr.includes(opt.dataset.letter)) opt.classList.add("selected");
+    });
+  } else {
+    answered[qid] = letter;
+    card.querySelectorAll(".option").forEach(opt => {
+      opt.classList.remove("selected");
+      if (opt.dataset.letter === letter) opt.classList.add("selected");
+    });
+  }
+
+  card.classList.add("answered");
+  updateProgress();
+}
+
+function toggleFlag(qid) {
+  const btn = document.getElementById(`flag${qid}`);
+  btn.classList.toggle("flagged");
+}
+
+function updateProgress() {
+  const total = questions.length;
+  const done = Object.keys(answered).length;
+  const pct = (done / total) * 100;
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressText").textContent = `${done} / ${total} answered`;
+  document.getElementById("liveSkipped").textContent = total - done;
+}
+
+function submitExam() {
+  submitted = true;
+  clearInterval(timerInterval);
+
+  let correct = 0, incorrect = 0, unanswered = 0;
+
+  questions.forEach(q => {
+    const card = document.getElementById(`q${q.id}`);
+    const exp = document.getElementById(`exp${q.id}`);
+    const userAns = answered[q.id];
+    const isMulti = q.multi === true;
+
+    card.querySelectorAll(".option").forEach(opt => opt.classList.add("disabled"));
+
+    let isCorrect = false;
+    if (!userAns || (Array.isArray(userAns) && userAns.length === 0)) {
+      unanswered++;
+    } else if (isMulti) {
+      const sorted1 = [...userAns].sort().join(",");
+      const sorted2 = [...q.correct].sort().join(",");
+      isCorrect = sorted1 === sorted2;
+      if (isCorrect) correct++; else incorrect++;
+    } else {
+      isCorrect = userAns === q.correct;
+      if (isCorrect) correct++; else incorrect++;
+    }
+
+    // Color the options
+    card.querySelectorAll(".option").forEach(opt => {
+      const l = opt.dataset.letter;
+      const isCorrectOpt = isMulti ? q.correct.includes(l) : l === q.correct;
+      const isSelected = isMulti ? (userAns && userAns.includes(l)) : l === userAns;
+
+      if (isSelected && isCorrectOpt) opt.className = "option disabled correct-ans";
+      else if (isSelected && !isCorrectOpt) opt.className = "option disabled wrong-ans";
+      else if (!isSelected && isCorrectOpt) opt.className = "option disabled show-correct";
+      else opt.className = "option disabled";
+    });
+
+    if (isMulti) {
+      card.querySelectorAll(".option-letter").forEach(el => {
+        const l = el.parentElement.dataset.letter;
+        const isCorrectOpt = q.correct.includes(l);
+        const isSelected = userAns && userAns.includes(l);
+        if (isSelected && isCorrectOpt) el.style.cssText = "border-color:#059669;background:#059669;color:#fff";
+        else if (isSelected && !isCorrectOpt) el.style.cssText = "border-color:#dc2626;background:#dc2626;color:#fff";
+        else if (!isSelected && isCorrectOpt) el.style.cssText = "border-color:#059669;background:#059669;color:#fff";
+      });
+    }
+
+    if (userAns) {
+      const badge = document.createElement("div");
+      badge.className = `result-badge ${isCorrect ? "correct-badge" : "wrong-badge"}`;
+      badge.innerHTML = isCorrect ? "✓ Correct" : "✗ Incorrect";
+      exp.parentElement.querySelector(".options").after(badge);
+    }
+
+    exp.innerHTML = q.explanation;
+    exp.classList.add("visible");
+
+    if (isCorrect) card.classList.add("correct-card");
+    else if (userAns) card.classList.add("wrong-card");
+  });
+
+  // Update live score
+  document.getElementById("liveCorrect").textContent = correct;
+  document.getElementById("liveIncorrect").textContent = incorrect;
+  document.getElementById("liveSkipped").textContent = unanswered;
+
+  const pct = Math.round((correct / questions.length) * 100);
+  const pass = pct >= 70;
+  const usedSecs = 3600 - totalSeconds;
+  const m = Math.floor(usedSecs/60), s = usedSecs%60;
+
+  document.getElementById("finalScoreText").textContent = pct + "%";
+  document.getElementById("finalScoreText").className = `final-score ${pass ? "pass" : "fail"}`;
+  document.getElementById("finalLabel").textContent = pass ? "PASS — Well done!" : "FAIL — Keep studying!";
+  document.getElementById("finalSub").textContent = pass
+    ? "You have met the Terraform Associate passing threshold."
+    : "You need 70% (40/57) to pass. Review the explanations above.";
+  document.getElementById("statCorrect").textContent = correct;
+  document.getElementById("statIncorrect").textContent = incorrect;
+  document.getElementById("statUnanswered").textContent = unanswered;
+  document.getElementById("statTime").textContent = `${m}m ${s}s`;
+  document.getElementById("finalResult").classList.add("visible");
+  document.getElementById("submitBtn").style.display = "none";
+
+  updateProgress();
+  document.getElementById("finalResult").scrollIntoView({behavior:"smooth"});
+}
+
+function retryExam() {
+  location.reload();
+}
+
+function scrollToTop() {
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    totalSeconds--;
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    const display = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const el = document.getElementById("timer");
+    el.textContent = display;
+    if (totalSeconds <= 300) el.className = "timer-value danger";
+    else if (totalSeconds <= 600) el.className = "timer-value warning";
+
+    if (totalSeconds <= 0) {
+      clearInterval(timerInterval);
+      submitExam();
+    }
+  }, 1000);
+}
+
+buildExam();
+startTimer();
+</script>
+</body>
+</html>
